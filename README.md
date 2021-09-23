@@ -158,3 +158,39 @@ You can find the source code of this example [here](Code/02-grayscale_filter/gra
 Note: for being able to run the project, the following is needed:
 1. How to install opencv and use it in Microsoft VS [click here](https://subwaymatch.medium.com/adding-opencv-4-2-0-to-visual-studio-2019-project-in-windows-using-pre-built-binaries-93a851ed6141)
 2. How to give arguments to our program in Microsoft VS [click here](https://social.msdn.microsoft.com/Forums/vstudio/en-US/33160a80-d2fa-4af2-a5d5-14b8696df702/argc-and-argv-in-visual-c?forum=vcgeneral)
+
+
+
+## GPU Hardware and Parallel Communcation Patterns
+Parallel computing is about many threads solving a problem by working together. The key to working together is communication. In CUDA, communication takes place through memory.
+
+There are different kinds of parallel communication patterns and they are about how to map tasks (threads) and memory. Important communication patterns are listed as follows:
+1. **Map**: Tasks read from and write to specific data elements. In this pattern, there is an one-to-one correspondence between input and output. The following figure shows this pattern.
+
+![Map Pattern](Images/map_communication_pattern.jpg)
+
+2. **Gather**: A good example and representation, as shown in the following figure, can be the average of three elements of an array which finally end in one element of the output array. A good practical example would be the image bluring in which neighboring pixels of a pixel are averaged with its value. 
+
+![Gather Pattern](Images/gather_communication_pattern.jpg)
+
+3. **Scatter**: **tasks compute where to write output**. A good example and representation of this pattern would be adding a fraction (about 1/4 of its value) of a pixel value to its neighboring pixels. The following figure shows this pattern. Note that just two threads are shown to clearly demonstrate the pattern. Another example is sorting numbers in an array because each thread will compute where to write its output.
+
+Note: the problem of scatter pattern would be attempt of several threads on writing to a same memory location simultaneously.
+
+![Scatter Pattern](Images/scatter_communication_pattern.jpg)
+
+4. **Stencil**: tasks read input from a fixed neighborhood in an array. As a result, there are a lot of data reuse. **Each element is accesses to the number of elements of the stencil**. 2D ann 3D Von neumann and 2D Moore stencil patterns are examples.
+
+2D Von Neumann Stencil Pattern
+
+![2D Von Neumann Stencil Pattern](Images/2D_Von_Neumann_Stencil_pattern.png)
+
+3D Von Neumann Stencil Pattern
+
+![3D Von Neumann Stencil Pattern](Images/3D_von_Neumann_Stencil_Model.png)
+
+2D Moore Stencil Pattern
+
+![2D Moore Stencil Pattern](Images/2D_Moore_stencil.gif)
+
+5. **Transpose**: 
