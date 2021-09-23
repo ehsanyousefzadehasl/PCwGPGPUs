@@ -1,0 +1,2 @@
+F:\My last desktop\my-future-planning\Parallel Computing with GPGPUs\Code\01-simple_program\simple_CUDA_square_each_element_of_an_array\x64\Debug\simple_CUDA_square_each_element_of_an_array.exe
+F:\My last desktop\my-future-planning\Parallel Computing with GPGPUs\Code\01-simple_program\simple_CUDA_square_each_element_of_an_array\x64\Debug\simple_CUDA_square_each_element_of_an_array.pdb

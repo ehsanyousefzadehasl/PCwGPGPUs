@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30330.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simple_CUDA_square_each_element_of_an_array", "simple_CUDA_square_each_element_of_an_array.vcxproj", "{F35109A8-B885-4287-9D9B-9E3AB5687704}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F35109A8-B885-4287-9D9B-9E3AB5687704}.Debug|x64.ActiveCfg = Debug|x64
+		{F35109A8-B885-4287-9D9B-9E3AB5687704}.Debug|x64.Build.0 = Debug|x64
+		{F35109A8-B885-4287-9D9B-9E3AB5687704}.Release|x64.ActiveCfg = Release|x64
+		{F35109A8-B885-4287-9D9B-9E3AB5687704}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {376C1C26-5728-410B-A1B0-0DEB7575BD10}
+	EndGlobalSection
+EndGlobal
