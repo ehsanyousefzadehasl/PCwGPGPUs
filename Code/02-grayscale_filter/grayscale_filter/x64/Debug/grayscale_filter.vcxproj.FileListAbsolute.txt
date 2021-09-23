@@ -1,0 +1,2 @@
+F:\My last desktop\my-future-planning\Parallel Computing with GPGPUs\Code\02-grayscale_filter\grayscale_filter\x64\Debug\grayscale_filter.exe
+F:\My last desktop\my-future-planning\Parallel Computing with GPGPUs\Code\02-grayscale_filter\grayscale_filter\x64\Debug\grayscale_filter.pdb

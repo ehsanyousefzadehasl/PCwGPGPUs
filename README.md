@@ -7,7 +7,7 @@ In this very first section, the story of how computer architects focused their a
 In the words of Thomas Jefferson
 > I like the dreams of the future better than the history of the past.
 
-The story starts 1948 (I can barely remember, but I believe you would not be able to remember anything) when Von Neumann architecture became the mainstream of computer architecture. Computer architectures were desigining and building computing systems that were fetching data from memories, processing it on CPUs, then writing it back to memories. They encountered several challenges, and tried to find solutions for them. One of the challenges was the processor-memory performance gap referred as [Memory Wall](https://link.springer.com/referenceworkentry/10.1007%2F978-0-387-09766-4_234). Computer architects for addressing this issue focused on architectural techniques like caching, pre-fetching, multi-threding, Processing In-Memory (PIM) to prevent CPUs from stalling (waiting for memories to give them data). The other one was dennard scaling breakdown. Computer architects were not able to improve the performance just by increasing the working frequency of chips. So, they steered the computer architecture trend toward Parallelism. This time instead of complex large processor cores, they were desigining for more simple processors working together. This architecture increased performance, and power efficiency by providing more operations per watt. Indeed, they focused on throughput (on large cores their focus was on latency). The only pitfall of parallel systems was making programmers' lifes harder. It is usually claimed challenging for a programmer, who is used to develop serial programs, to switch to a new thinking paradigm and develop parallel programs!
+The story starts 1948 (I can barely remember, but I believe you would not be able to remember anything) when Von Neumann architecture became the mainstream of computer architecture. Computer architects were desigining and building computing systems that were fetching data from memories, processing it on CPUs, then writing it back to memories. They encountered several challenges, and tried to find solutions for them. One of the challenges was the processor-memory performance gap referred as [Memory Wall](https://link.springer.com/referenceworkentry/10.1007%2F978-0-387-09766-4_234). Computer architects for addressing this issue focused on architectural techniques like caching, pre-fetching, multi-threding, Processing In-Memory (PIM) to prevent CPUs from stalling (waiting for memories to give them data). The other one was dennard scaling breakdown. Computer architects were not able to improve the performance just by increasing the working frequency of chips. So, they steered the computer architecture trend toward Parallelism. This time instead of complex large processor cores, they were desigining for more simple processors working together. This architecture increased performance, and power efficiency by providing more operations per watt. Indeed, they focused on throughput (on large cores their focus was on latency). The only pitfall of parallel systems was making programmers' lifes harder. It is usually claimed challenging for a programmer, who is used to develop serial programs, to switch to a new thinking paradigm and develop parallel programs!
 
 ## Compute Unified Device Architecture (CUDA)
 It is a parallel computing platform and API created by NVIDIA allowing developers to use a CUDA-enabled GPU for general purpose processing. This approach is termed as GPGPU (General Purpose GPU). The CUDA platform is a software layer providing a direct access to the GPU's virtual instruction set (PTX) and parallel computational elements, for the execution of kernels which also are called computer kernels. This platform is designed to work with programming languages like C, C++, Fortran. As a result, programming with CUDA is much easier than prior APIs, like Direct3D and OpenGL (demaning advanced skills in graphics programming), to it. OpenCL (Open Computing Language) is a framework providing developers with more capability of writing programs that execute across heterogeneous platforms consisted of CPUs, GPUs, DSPs, FPGAs, and other hardware accelerators.
@@ -115,9 +115,9 @@ kernel_name<<<dim3(Dx, Dy, Dz), dim3(Tx, Ty, Tz), shmem>>>(argment list);
 The following list briefly introduces you the built-in variables of CUDA for addressing threads and blocks:
 
 1. threadIdx: thread within block - threadIdx.x, threadIdx.y
-2. blockDim: size of a block (# of threads in a block)
+2. blockDim.x, .y, .z: size of a block (# of threads in a block) in a particular dimension
 3. blockIdx: block id within grid
-4. gridDim: size of grid (# of blocks in it)
+4. gridDim.x, .y, .z: size of grid (# of blocks in it) in a particular direction
 
 In the following example: our kernel is consisted of 8 blocks, each containing 64 threads. Totally, the kernel consists of 64 * 8 = 512
 
@@ -126,3 +126,35 @@ kernel_name<<<dim3(2, 2, 2), dim3(4, 4, 4)>>>(argment list);
 ```
 Note: for calculating the data transfer time overhead between CPU and GPU, [NVIDIA Nsight Systems tool](https://developer.nvidia.com/nsight-systems) can be used.
 
+### Grayscale Filter
+In this example, a grayscale image processing filter is developed. It inputs a color image and changes it to a black and white image. First, how images are shown is reviewd.
+
+An image is represented by three values well-known for RGB, which stands for Red, Green, Blue. RGB = (0, 0, 0) represents white, and RGB = (255, 255, 255) represents black. Also, there is another element which shows the transparency, which is called alpha channel. In C language a pixel can be shown as follows:
+
+```c
+struct uchar4 {
+    // RED
+    unsigned char x;
+
+    // Green
+    unsigned char y;
+
+    // Blue
+    unsigned char z;
+
+    // ALPHA
+    unsigned char w;
+}
+```
+
+For converting a color image to a grayscale one, simple naive way would be use the average of Red, Green, and Blue channels. But, image processing experts suggest the following formula, so we will use it.
+
+```
+I = 0.299 * R + 0.587 * G + 0.114 * B
+```
+
+You can find the source code of this example [here](Code\02-grayscale_filter\grayscale_filter). This is the project given on the course. For working with this, you have to install opencv, also do a lot of configurations to your VS IDE to run it. I developed a simpler version of this filter and it can be found [here]().
+
+Note: for being able to run the project, the following is needed:
+1. How to install opencv and use it in Microsoft VS [click here](https://subwaymatch.medium.com/adding-opencv-4-2-0-to-visual-studio-2019-project-in-windows-using-pre-built-binaries-93a851ed6141)
+2. How to give arguments to our program in Microsoft VS [click here](https://social.msdn.microsoft.com/Forums/vstudio/en-US/33160a80-d2fa-4af2-a5d5-14b8696df702/argc-and-argv-in-visual-c?forum=vcgeneral)
