@@ -153,7 +153,7 @@ For converting a color image to a grayscale one, simple naive way would be use t
 I = 0.299 * R + 0.587 * G + 0.114 * B
 ```
 
-You can find the source code of this example [here](Code/02-grayscale_filter/grayscale_filter). This is the project given on the course. For working with this, you have to install opencv, also do a lot of configurations to your VS IDE to run it. I developed a simpler version of this filter and it can be found [here]().
+You can find the source code of this example [here](Code/02-grayscale_filter/grayscale_filter). This is the project given on the course. For working with this, you have to install opencv, also do a lot of configurations to your VS IDE to run it. I developed a simpler version of this filter and it can be found [here](Code/02-grayscale_filter/simpler_grayscale_filter).
 
 Note: for being able to run the project, the following is needed:
 1. How to install opencv and use it in Microsoft VS [click here](https://subwaymatch.medium.com/adding-opencv-4-2-0-to-visual-studio-2019-project-in-windows-using-pre-built-binaries-93a851ed6141)
