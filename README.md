@@ -193,4 +193,37 @@ Note: the problem of scatter pattern would be attempt of several threads on writ
 
 ![2D Moore Stencil Pattern](Images/2D_Moore_stencil.gif)
 
-5. **Transpose**: 
+5. **Transpose**: task reorder data elements in memory. A good example for this pattern is transposing a 2D array or matrix. There is a one-to-one correspondence between input and output.
+
+In the following snippet, you can see differnet communication patterns:
+
+```c
+float out[], in[];
+int i = threadIdx.x;
+int j = threadIdx.y;
+
+const float pi = 3.1415;
+
+out[i] = pi * in[i]; // Map pattern because every single output element is in a correpondence to a unique input element
+
+
+out[i + j * 128] = in[j + i * 128]; // Transpose pattern because this task reorders data elements in memory
+
+if (i % 2 == 0) {
+    out[i - 1] += pi * in[i]; out[i + 1] += pi * in[i];
+    // Scatter pattern because scatters in[i] on out[i - 1] and out[i + 1]
+
+    out[i] = (in[i] + in[i - 1] + in[i + 1]) * pi / 3.0f;
+    // Gather operation because this task gathers in[i], in[i - 1] and in[i + 1] on out[i] 
+}
+```
+ The following figure shows the communication patterns.
+
+ ![communication pattern](Images/communication_patterns.jpg)
+
+ ### GPU Hardware
+ On the summary of CUDA programming model (what a programmer sees of GPU), The main job of a CUDA programmer is to divide a task into smaller computational kernels. In CUDA, a kernel, as seen before, is a C/C++ function and it will be performed by many threads. A thread is a path of execution through the source code, and different threads take differen paths on a source code based on the conditions of conditional statementes like if, switch, and loops. In CUDA, threads are grouped into thread blocks. In a thread block, threads cooperate to solve a sub-problem. The higher level of thread block is thread gird or kernel.
+
+ In a high level, a GPU is made of several Streaming Multiprocessors (SMs). Different GPU have different number of SMs. Each SM has many simple processors (Called Streaming Processors (SPs)) that can run a number of parallel threads. GPU is responsible for allocating thread blocks (TBs) to streaming multiprocessors (SMs). All of the SMs run in parallel and independently. The following figure would give a clear idea of the all above.
+
+ ![overall view of GPU hardware](Images/Overall_view_of_GPU_hardware.jpg)
