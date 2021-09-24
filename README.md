@@ -227,3 +227,45 @@ if (i % 2 == 0) {
  In a high level, a GPU is made of several Streaming Multiprocessors (SMs). Different GPU have different number of SMs. Each SM has many simple processors (Called Streaming Processors (SPs)) that can run a number of parallel threads. GPU is responsible for allocating thread blocks (TBs) to streaming multiprocessors (SMs). All of the SMs run in parallel and independently. The following figure would give a clear idea of the all above.
 
  ![overall view of GPU hardware](Images/Overall_view_of_GPU_hardware.jpg)
+
+ Note that when a kernel encompassing several thread blocks is launched, there is no guarantee about the execution order of thread blocks. Also, programmer cannot determine which SM will execute which thread block. However, CUDA makes few guarantees about when and where thread blocks will run:
+ 1. Hardware runs things efficiently because of the flexibility provided for it.
+ 2. No waiting on filling SMs with TBs.
+ 3. Scalability comes as a result of no force of where and whent a specific TB will be executed.
+
+**Note**: There is no communication between thread blocks (TBs).
+
+The following example demonstrates how 16 thread blocks with one thread in each of them can result in 16! different outcomes. The source code can be found [here](Code/03-execution_order/execution_order/kernel.cu).
+
+```c
+#include <stdio.h>
+
+#define NUM_BLOCKS 16
+#define BLOCK_WIDTH 1
+
+_global__ void hello() {
+    printf("I'm the thread in block %d", blockIdx.x);
+}
+
+int main() {
+    // kernel launch
+    hello<<<NUM_BLOCKS, BLOCK_WIDTH>>>();
+
+    // forcing the printf()s to flush
+    cudaDeviceSynchronize();
+
+    printf("This is the end!");
+    return 0;
+}
+```
+
+The output of different executions.
+
+![eo1](Images/exe_order_o_1.png)
+![eo2](Images/exe_order_o_2.png)
+
+CUDA guarantees that:
+1. All threads in a block run on the same SM at the same time
+2. All blocks in a kernel finish before any blocks from the next kernel runs
+
+### Memory Model
