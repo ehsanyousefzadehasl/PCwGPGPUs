@@ -427,3 +427,44 @@ __global__ void aKernel(float *g){
 ```
 
 #### Problem: when several threads write a single memory location
+In this way, random result will show up because many thread simultaneously will read stale data. This [example](Code/05-many_threads_accessing_single_mem_location_problem/many_threads_accessing_problem/kernel.cu) shows this problem. The following figures show the random results of incrementing 10 elements of an array with one million threads. 
+
+![](Images/many_threads_accessing_one_mem_location_problem_1.png)
+
+![](Images/many_threads_accessing_one_mem_location_problem_2.png)
+
+One solution to this problem is using __syncthreads() with changes to the source code. The other solution is atomicAdd(). This instruction is from atomic instructions that GPU implement to meet this problem. Some other atomic instructions are:
+1. atomicMin()
+2. atomicXOR()
+3. atomicCAS(): atomic Compare And Swap
+
+If you look at [this one](Code/05-many_threads_accessing_single_mem_location_problem/solved_with_atomicAdd\solved_with_atomicAdd/kernel.cu), you will figure out how atomicAdd solves the problem, and the following figures show the correct execution of this one.
+
+![solved with atomicAdd](Images/solved_with_atomic_add1.png)
+
+![solved with atomicAdd](Images/solved_with_atomic_add2.png)
+
+The limitations of atomic operations:
+- Only certain operations and data types (mostly int) are supported (But it is possible to implement our desired atomic operation with the help of atomicCAS())
+- No ordering constraints
+  - Floating-point arithmetic non-associative
+- Serializing accesses to memory ends in performance degradation
+
+##### Programming Exercise
+Modify the example code to:
+1. 10 <sup>6</sup> threads incrementing 10 <sup>6</sup> elements
+2. 10 <sup>6</sup> threads atomically incrementing 10 <sup>6</sup> elements
+3. 10 <sup>6</sup> threads incrementing 100 threads
+4. 10 <sup>6</sup> threads atomically incrementing 100 elements
+5. 10 <sup>7</sup> threads atomically incrementing 100 elements
+
+Which ones produce correct answer? and which one is the slowest and which one is the fastest one?
+
+The reason for the fastest one is that GPU cache can catch the accesses.
+
+#### Avoiding Thread Divergence on Writing Efficient CUDA Programs
+Threads diverge on conditional structures of the source code on execution.
+
+In this section, we reviewed communication patterns, GPU hardware and programming model. Then, on writing efficient CUDA programs we reviewed accessing memory faster by using faster memories and coalesing accesses to the global memory. Also, we learned that avoiding thread divergence is another way of writing efficient CUDA programs.
+
+### Bluring Images Programming Assignment
