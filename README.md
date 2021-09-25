@@ -320,3 +320,110 @@ But, if no barriers were used the result would be random like what is shown in t
 
 It is recommended to do some eperiments in theses phase as this tutorial continues because the best way of learning these things is by doing them. Also, try to change the provided source codes. Any commnets, or suggestions are well appreciated.
 
+#### Writing Efficient Programs
+The high-level strategy for writing efficient programs with CUDA is to maximize arithmetic intensity. It means to maximize compute operations per thread, and minimize time spent on memory accesses per thread.
+
+##### Moving frequently-accessed data to fast memory
+One of the ways to minimize time spent on memory is to move frequently-accessed data to fast memory. It is considered that local memory (Registers) is faster than shared memory, and they both together are much faster than global memory. The following snippets shows how variables are stored locally or globally.
+
+```c
+__global__ void use_local_memory_GPU(float in) {
+    float f; // variable "f" is in local memory and private to each thread
+    f = in; // parameter "in" is in local memory and private to each thread
+}
+
+int main(int argc, char **argv) {
+    use_local_memory_GPU<<<1, 128>>>(2.0f);
+}
+```
+
+```c
+__global__ void use_global_memory_GPU(float *arr) {
+    arr[threadIdx.x] 2.0f * (float) threadIdx.x;
+}
+
+int main(int argc, char **argv) {
+    float h_arr[128]; // h stands for host CPU
+    float *d_arr; // d stands for Device GPU
+
+    // allocating global memory on the device, placing the result in "d_arr"
+    cudaMalloc((void **) &d_arr, sizeof(float) * 128);
+
+    // copying from CPU's memory to GPU's memory
+    cudaMemcpy((void *) d_arr, (void *) h_arr, sizeof(float) * 128, cudaMemcpyHostToDevice);
+
+    // launching a kernel with 1 block of 128 threads
+    use_global_memory_GPU<<<1, 128>>>(d_arr);
+
+    // copying from GPU's memory to CPU's memory
+    cudaMemcpy((void *) h_arr, (void *) d_arr, sizeof(float) * 128, cudaMemcpyDeviceToHost);
+
+    return 0;
+}
+```
+
+In the following example, it is shown how variables are stored on GPU's shared memory. This memory is shared by all threads of a thread block (TB). Earlier in the barrier example, it is shown how a variable is stored in shared memory by using __shared__ tag. 
+
+```c
+// it must be launched with 128 threads
+__global__ void use_shared_memory_GPU(float *arr) {
+    int i, index = threadIdx.x;
+    float average, sum = 0.0f;
+    
+    // __shared__ variables are visible to all threads in the thread block, and have the same lifetime as the thread block
+    __shared__ float sh_arr[128]; // sh stand for shared
+
+    // copying from global memory to shared memory
+    // each thread copies one element
+    // first the thread brings that shared element into its local memory (registers), then moves it into shared memory
+    sh_arr[index] = arr[index];
+
+    // ensures all the writes to shared memory have completed
+    __syncthreads();
+
+    // averaging of all previous elements
+    for(i = 0; i < index; i++) {
+        sum += sh_arr[index];
+    }
+    average = sum / (float) index;
+
+    if(arr[index] > average) {
+        arr[index] = average;
+    }
+
+    // the following code has No Effect
+    // it modifies data but it never copies that data back to global memory
+    // so the results vanishes when the thread block completes
+    sh_arr[index] = 3.14;
+}
+```
+
+Note that if the data processed on shared is not copied to global memory when the thread block finishes the data will be gone because the lifetime of shared data of a thread block is till the end of that thread block's lifetime.
+
+##### Using coalesced global memory access
+GPU operates most efficient when threads read/ write contiguous (next or together in sequence) memory locations of global memory. The following figure shows how coalesced global memory accesses results in higher performance by reducing the number of memory transactions for feeding the threads with data to work on.
+
+![Coalesced Accessing to Global Memory](Images/coalesced_accessing_to_global_memory.jpg)
+
+Pay attention at the access pattern of some statements in the following snippet.
+
+```c
+__global__ void aKernel(float *g){
+    float a = 3.1415;
+    int i = threadIdx.x;
+
+    g[i] = a; // coalesced access pattern
+
+    g[i * 2] a; // strided access pattern
+
+    a = g[i]; // coalesced
+
+    a = g[blockDim.x/ 2 + i]; // coalesced
+
+    g[i] = a * g[blockDim.x/ 2 + i] // coalesced
+
+    g[blockDim.x - 1 - i] = a; // coalesced
+}
+```
+
+#### Problem: when several threads write a single memory location
