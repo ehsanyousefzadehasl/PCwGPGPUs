@@ -314,7 +314,7 @@ int main()
 
 But, if no barriers were used the result would be random like what is shown in the following figure which is the output of [this source code](Code/04-need_for_barriers\code_with_barriers/no_synchronization_mess/no_synchronization_mess/kernel.cu) in which no __syncthreads() instruction is used.
 
-![no synchronization mess](images/no_barrier_mess.png)
+![no synchronization mess](Images/no_barrier_mess.png)
 
 **Note** that syncthreads() is used just for synchronization of threads in a thread block.
 
