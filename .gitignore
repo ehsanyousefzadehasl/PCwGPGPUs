@@ -3,3 +3,7 @@ Code/02-grayscale_filter/simpler_grayscale_filter/simpler_greyscale_filter/.vs
 Code/02-grayscale_filter/opencv_test/.vs
 Code/03-execution_order/execution_order/.vs
 Code/03-execution_order/execution_order/x64
+Code/04-need_for_barriers/code_with_barriers/need_for_barriers/.vs
+Code/04-need_for_barriers/code_with_barriers/need_for_barriers/x64
+Code/04-need_for_barriers/code_with_barriers/no_synchronization_mess/no_synchronization_mess/.vs
+Code/04-need_for_barriers/code_with_barriers/no_synchronization_mess/no_synchronization_mess/x64

@@ -262,6 +262,7 @@ int main() {
 The output of different executions.
 
 ![eo1](Images/exe_order_o_1.png)
+
 ![eo2](Images/exe_order_o_2.png)
 
 CUDA guarantees that:
@@ -269,3 +270,53 @@ CUDA guarantees that:
 2. All blocks in a kernel finish before any blocks from the next kernel runs
 
 ### Memory Model
+Every thread has access to its local memory which is used for storing its local private variables. Threads of a thread block share a memory called ""shared memory". Every thread in entire system reads and writes at any time to global memory. The GPU's memory, which data is copied from CPU's memory to it, is the global memory.
+
+Following statements from a quiz all are true, which can give a better understanding of the memory model of GPU:
+1. All threads from a block can access the same variable in that thread block's shared memory.
+2. Threads from two different blocks can access the same variable in global memory.
+3. Threads from different thread blocks have their own copy of local varaibles in local memory.
+4. Threads from the same thread block have their own copy of local variables in local memory.
+
+The following figure can give a good idea of memory model in CUDA programming.
+
+![CUDA memory model](Images/CUDA_memory_model.png)
+
+As it is evident from this memory model, threads can access each other's results throguh shared and global memory, and in this way they can work together. But, what happens if a thread reads a result before another one writes? So, there is needed a way of synchronization!
+
+The simplest form of synchronization is using "barriers". A barrier is a point in the program where threads stop and wait, and when all threads have reached the barrier, they can proceed. The following snippet shows the need for barriers. The source code can be found [here](Code/04-need_for_barriers/code_with_barriers/need_for_barriers/kernel.cu).
+
+```c
+  int idx = threadIdx.x;
+    int r1, r2, res_diff;
+    __shared__ int arr[512];
+    arr[idx] = idx;
+    printf("A: Thread %5d, value %5d\n", idx, arr[idx]);
+    __syncthreads();
+    r1 = arr[idx];
+
+    if (idx < 511) {
+        int temp = arr[idx + 1];
+        __syncthreads();
+        arr[idx] = temp;
+    }
+    r2 = arr[idx];
+    res_diff = r2 - r1;
+    printf("B: Thread %5d, value %5d, diff=%5d\n", idx, arr[idx], res_diff);
+}
+
+int main()
+{
+    aKernel<<<1, 512>>> ();
+    return 0;
+}
+```
+
+But, if no barriers were used the result would be random like what is shown in the following figure which is the output of [this source code](Code/04-need_for_barriers\code_with_barriers/no_synchronization_mess/no_synchronization_mess/kernel.cu) in which no __syncthreads() instruction is used.
+
+![no synchronization mess](images/no_barrier_mess.png)
+
+**Note** that syncthreads() is used just for synchronization of threads in a thread block.
+
+It is recommended to do some eperiments in theses phase as this tutorial continues because the best way of learning these things is by doing them. Also, try to change the provided source codes. Any commnets, or suggestions are well appreciated.
+
