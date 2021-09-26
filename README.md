@@ -400,6 +400,18 @@ __global__ void use_shared_memory_GPU(float *arr) {
 
 Note that if the data processed on shared is not copied to global memory when the thread block finishes the data will be gone because the lifetime of shared data of a thread block is till the end of that thread block's lifetime.
 
+Scalar variables like what define are stored in register file of GPU, and read/ write access to them is super fast. The lifetime of that variable is equal to the thread's lifetime.
+
+```c
+int var;
+```
+
+Arrays defined without qualifier are stored in local memory of a thread and is private to that thread. The lifetime of that array is equal to the thread's lifetime. It passes through memory hierarchy and read/write access to it could penalize the performance.
+
+```c
+int array_var[10];
+```
+
 ##### Using coalesced global memory access
 GPU operates most efficient when threads read/ write contiguous (next or together in sequence) memory locations of global memory. The following figure shows how coalesced global memory accesses results in higher performance by reducing the number of memory transactions for feeding the threads with data to work on.
 
@@ -468,3 +480,66 @@ Threads diverge on conditional structures of the source code on execution.
 In this section, we reviewed communication patterns, GPU hardware and programming model. Then, on writing efficient CUDA programs we reviewed accessing memory faster by using faster memories and coalesing accesses to the global memory. Also, we learned that avoiding thread divergence is another way of writing efficient CUDA programs.
 
 ### Bluring Images Programming Assignment
+You can see the project [here](Code/06-image_bluring_filter/image_bluring_filter). It is modified, and its errors are fixed, and is successfully tested on Microsoft VS 2019. For being able to run this, you have to have the same setup (opencv must be added to configurations).
+
+What are needed to be done are listed below:
+1. Write the blur kernel
+2. Write kernel to seperate color image to R, G, B channels
+3. Allocate memory for the filter
+4. Set grid and block size
+
+Because these programming assignment contain code for evaluating the result by serial CPU code, the entire assignment looks bulky. A simpler version which implements a image blur filter can be found [here](Code/6-image_bluring_filter/simpler_image_bluring_filter).
+
+## Fundamentals of GPU Algorithms
+Discussing about GPU parallel algorithms requires knowing about two costs:
+1. Step Complexity
+2. Work Complexity
+
+The following figure shows an example.
+
+![step and work complexity](Images/step_work_complexity_concept_example.jpg)
+
+The step and work complexity are used to compare against the step and work complexity for a serial implementation. It is concluded that a parallel algorithm is work-efficient if its work complexity is asymptotically the same (within a constant factor as the work complexity of the sequential algorithm). If the step complexity of a parallel algorithm is less than a step complexity of a serial algorithm while having a reasonable work complexity that is not too expensive, the parallel algorithm will have faster runtime.
+
+### Reduce Algorithm
+An example of reduce algorithm is reducing a set of numbers, for example, adding up all the numbers of a set to get a total sum. This algorithm demands cooperation between processors. The following figure shows a good this algorithm:
+
+![reduce example](Images/reduce_example.jpg)
+
+Reduce algorithm has two inputs:
+1. Set of elements
+2. Reduction operator (It must be binary and associative)
+
+for example: REDUCE[(1, 2, 3, 4), +] => 50
+
+#### Serial code of reduce:
+
+```c
+int reduce(int *arr, int array_length)
+{
+    sum = 0;
+    for(int i = 0; i < array_length; i ++) {
+        sum += arr[i];
+    }
+    return sum;
+}
+```
+
+The step and work complexity of serial reduce algorithm:
+1. Step Complexity: O(n) - It need n-1 steps
+2. Work Complexity: O(n) - In each step, there is just one operation
+
+#### Parallel Version of Reduce
+The following figure shows how by changing the associativity of operands in expresssion, the parallel version can be generated.
+
+![parallel reduce](Images/parallel_reduce.jpg)
+
+The step and work complexities of parallel reduce are:
+1. Step Complexity: O(log2(n))
+2. Work Complexity: O(n)
+
+##### Brent's Theorem
+
+
+
+
