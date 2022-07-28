@@ -495,7 +495,7 @@ If you look at [this one](Code/05-many_threads_accessing_single_mem_location_pro
 The limitations of atomic operations:
 - Only certain operations and data types (mostly int) are supported (But it is possible to implement our desired atomic operation with the help of **atomicCAS()**)
 - No ordering constraints
-  - Floating-point arithmetic non-associative (**a + (b + c) != (a + b) + c**), it is a result of the fact computers are completely precise when it comes to infinitesimal values like 10<sup>-20<sup>
+  - Floating-point arithmetic non-associative (**a + (b + c) != (a + b) + c**), it is a result of the fact computers are completely precise when it comes to infinitesimal values like 10<sup>-20</sup>
 - Serializing accesses to memory ends in harsh performance degradation
 
 ##### Programming Exercise
@@ -535,15 +535,15 @@ Because these programming assignment contain code for evaluating the result by s
 
 
 ## Fundamentals of GPU Algorithms
-Discussing about GPU parallel algorithms requires knowing about two costs:
-1. Step Complexity
-2. Work Complexity
+Discussing GPU parallel algorithms requires knowledge on two costs: Step and Work Complexities
 
 The following figure shows an example.
 
-![step and work complexity](Images/step_work_complexity_concept_example.jpg)
+![step and work complexities](Images/step_work_complexity_concept_example.jpg)
 
-The step and work complexity are used to compare against the step and work complexity for a serial implementation. It is concluded that a parallel algorithm is work-efficient if its work complexity is asymptotically the same (within a constant factor as the work complexity of the sequential algorithm). If the step complexity of a parallel algorithm is less than a step complexity of a serial algorithm while having a reasonable work complexity that is not too expensive, the parallel algorithm will have faster runtime.
+The step and work complexities are used to compare against the step and work complexity for a serial implementation. It is concluded that a parallel algorithm is work-efficient if its work complexity is asymptotically the same (within a constant factor as the work complexity of the sequential algorithm). If the step complexity of a parallel algorithm is less than a step complexity of a serial algorithm while having a reasonable work complexity that is not too expensive, the parallel algorithm will have faster runtime.
+
+
 
 ### Reduce Algorithm
 An example of reduce algorithm is reducing a set of numbers, for example, adding up all the numbers of a set to get a total sum. This algorithm demands cooperation between processors. The following figure shows a good this algorithm:
@@ -552,9 +552,9 @@ An example of reduce algorithm is reducing a set of numbers, for example, adding
 
 Reduce algorithm has two inputs:
 1. Set of elements
-2. Reduction operator (It must be binary and associative)
+2. Reduction operator (It must be **binary** and **associative** like add, multiply)
 
-for example: REDUCE[(1, 2, 3, 4), +] => 50
+Example: **REDUCE[(1, 2, 3, 4), +] => 50**
 
 #### Serial code of reduce:
 
@@ -570,8 +570,8 @@ int reduce(int *arr, int array_length)
 ```
 
 The step and work complexity of serial reduce algorithm:
-1. Step Complexity: O(n) - It need n-1 steps
-2. Work Complexity: O(n) - In each step, there is just one operation
+1. Step Complexity: **O(n)** - It need n-1 steps
+2. Work Complexity: **O(n)** - In each step, there is just one operation
 
 #### Parallel Version of Reduce
 The following figure shows how by changing the associativity of operands in expresssion, the parallel version can be generated.
@@ -579,11 +579,85 @@ The following figure shows how by changing the associativity of operands in expr
 ![parallel reduce](Images/parallel_reduce.jpg)
 
 The step and work complexities of parallel reduce are:
-1. Step Complexity: O(log2(n))
-2. Work Complexity: O(n)
-
-##### Brent's Theorem
+1. Step Complexity: **O(log(n))**
+2. Work Complexity: **O(n)**
 
 
 
+### Scan Algorithm
+An example for this algorithm is calculating the sum of all element till the index the current value of the pointer has.
 
+- input - 1 2 3 4 5 6 7 8 9 10
+- output - 1 3 6 10 15 21 28 36 45 55
+
+- Scan is not useful in serial world, but it is very useful in parallel computing
+
+Inclusive and exclusive scans: in inclusive scan all elements are involved in the operation and the final result is what we need to decide on. However, exclusive scan start with identity value as the first calculated output and the final element is not involved in the results.
+
+Inclusive Example:
+
+- input - 1 2 3 4 5 6 7 8 9 10
+- output - 1 3 6 10 15 21 28 36 45 55
+
+
+Exclusive Example:
+
+- input - 1 2 3 4 5 6 7 8 9 10
+- output - 0 1 3 6 10 15 21 28 36 45
+
+
+Inclusive reduce:
+
+```c
+int acc = identity_element;
+
+for (i = 0; i < elements.length(); i++) {
+    acc = acc (op) elements[i];
+    out[i] = acc;
+}
+```
+
+exclusive reduce
+
+```c
+int acc = identity_element;
+
+for (i = 0; i < elements.length(); i++) {
+    out[i] = acc;
+    acc = acc (op) elements[i];
+}
+```
+
+for scan, we have:
+- step complexity: **O(logn)**
+- work complexity: **O(n<sup>2</sup>)**
+
+## Two Paralllel Scan Algorithms
+
+### Hillis & Steele Algorithm (**Step Efficient**)
+An example of Hillus and Steele algorithm is given - **it is an inclusive sum scan** - in the following figure. Remember that on step 0, starting from the last element, each element is added to it neighbor specified with **2<sup>step</sup>**. If an element does not have a neighbor on its left side, the calculation is not accomplished and its value is passed down.
+
+![Hillis and Steele](Images/Hills%26steele.png)
+
+- Work Complexity: **O(nlogn)**
+- Step Complexity: **O(logn)**
+
+### Belloch Algorithm (**Work Efficient**)
+This algorithm introduces a new operation called: **downsweep**. Downsweep receives two inputs and produces two outputs (the right hand input is copied, the result of operation on two is another result) as the following figure shows.
+
+![downsweep operator](Images/downsweep.png)
+
+Here, there is an example of exclusive Belloch algorithm. Belloch algorithm is composed of two overall steps. First step is reduce, the other one is downsweep.
+
+![belloch algorithm example - sum scan](Images/belloch-example.png)
+
+**Note**: remember that Hillis&Steele and Belloch algorithms are for parallelizing the scan algorithm. Remember that if looks very serial by its cover.
+
+Another example of Belloch algorithm, the operator is max scan.
+
+![belloch algorithm example - max scan](Images/belloch-example2.png)
+
+- Work complexity: **O(n) (reduce)** + **O(n) (downsweep)**
+- Step complexity: **O(logn) (reduce)** + **O(logn) (downsweep)**
+
+## Histogram Algortihm
