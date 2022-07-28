@@ -1,20 +1,26 @@
 # Parallel Computing with GPGPUs
-In this repository, I try to summarize what I review and learn from parallel comptuing with GPGPUs. Special thanks for [Prof. John Owens](https://www.ece.ucdavis.edu/~jowens/) who paved the way of learning parallel computing with GPGPUs with his free course on the Udacity. I develop this course as he taught that time. However, I add more information and examples from other resources.
+In this repository, I try to summarize what I review and learn from parallel comptuing with GPGPUs. Special thanks to [Prof. John Owens](https://www.ece.ucdavis.edu/~jowens/) and [David P. Luebke](https://luebke.us/) who paved the way of learning parallel computing with GPGPUs with his free course on the Udacity. I develop this course as he taught that time. However, I add more information and examples from other resources.
 
 ## Introduction
-In this very first section, the story of how computer architects focused their attention on parallel computing is narrated.Then, CUDA platform is described. Finally, a simple CUDA program is shown and described.
+In this very first section, the story of how computer architects focused their attention on parallel computing is narrated. Then, the CUDA platform is described. Finally, a simple CUDA program is shown and described.
+
 ### The History
 In the words of Thomas Jefferson
 > I like the dreams of the future better than the history of the past.
 
-The story starts 1948 (I can barely remember, but I believe you would not be able to remember anything) when Von Neumann architecture became the mainstream of computer architecture. Computer architects were desigining and building computing systems that were fetching data from memories, processing it on CPUs, then writing it back to memories. They encountered several challenges, and tried to find solutions for them. One of the challenges was the processor-memory performance gap referred as [Memory Wall](https://link.springer.com/referenceworkentry/10.1007%2F978-0-387-09766-4_234). Computer architects for addressing this issue focused on architectural techniques like caching, pre-fetching, multi-threding, Processing In-Memory (PIM) to prevent CPUs from stalling (waiting for memories to give them data). The other one was dennard scaling breakdown. Computer architects were not able to improve the performance just by increasing the working frequency of chips. So, they steered the computer architecture trend toward Parallelism. This time instead of complex large processor cores, they were desigining for more simple processors working together. This architecture increased performance, and power efficiency by providing more operations per watt. Indeed, they focused on throughput (on large cores their focus was on latency). The only pitfall of parallel systems was making programmers' lifes harder. It is usually claimed challenging for a programmer, who is used to develop serial programs, to switch to a new thinking paradigm and develop parallel programs!
+The story begins 1948 (I can barely remember something :D, but I believe you would not be able to remember anything) when Von Neumann architecture became the mainstream of computer architecture. Computer architects were desigining and building computing systems that were fetching data from memory units, processing it in CPUs, then writing it back to memory units. They encountered several challenges, and tried to find solutions for them. One of the challenges was the processor-memory performance gap referred as [Memory Wall](https://link.springer.com/referenceworkentry/10.1007%2F978-0-387-09766-4_234). Computer architects for addressing this issue focused on architectural techniques like caching, pre-fetching, multi-threding, Processing In-Memory (PIM) to prevent CPUs from stalling (waiting for memories to give them data). The other one was dennard scaling breakdown. Computer architects were not able to improve the performance just by increasing the working frequency of chips. So, they steered the computer architecture trend toward **parallelism**. This time instead of complex large processor cores, they were desigining for more simple processors working together. This architecture increased performance, and power efficiency by providing more operations per watt. Indeed, they focused on throughput (on large cores their focus was on latency). The only pitfall of parallel systems was making programmers' lifes harder. It is usually claimed challenging for a programmer, who is used to develop serial programs, to switch to a new thinking paradigm and develop parallel programs!
+This amount of history to know why we are here is enough!
+
+In the words of Henry Glassie
+> History is not the past but a map of the past, drawn from a particular point of view, to be useful to the modern traveller.
+
 
 ## Compute Unified Device Architecture (CUDA)
-It is a parallel computing platform and API created by NVIDIA allowing developers to use a CUDA-enabled GPU for general purpose processing. This approach is termed as GPGPU (General Purpose GPU). The CUDA platform is a software layer providing a direct access to the GPU's virtual instruction set (PTX) and parallel computational elements, for the execution of kernels which also are called computer kernels. This platform is designed to work with programming languages like C, C++, Fortran. As a result, programming with CUDA is much easier than prior APIs, like Direct3D and OpenGL (demaning advanced skills in graphics programming), to it. OpenCL (Open Computing Language) is a framework providing developers with more capability of writing programs that execute across heterogeneous platforms consisted of CPUs, GPUs, DSPs, FPGAs, and other hardware accelerators.
+It is a parallel computing platform and API created by NVIDIA allowing developers to use a CUDA-enabled GPU for general purpose processing. This approach is termed as GPGPU (General Purpose GPU). The CUDA platform is a software layer providing a direct access to the GPU's virtual instruction set (**PTX**) and parallel computational elements, for the execution of kernels which also are called compute kernels. This platform is designed to work with programming languages like C, C++, Fortran. As a result, programming with CUDA is much easier than prior APIs, like **Direct3D** and **OpenGL** (demaning advanced skills in graphics programming), to it. **OpenCL** (Open Computing Language) is a framework providing developers with more capability of writing programs that execute across heterogeneous platforms consisted of CPUs, GPUs, DSPs, FPGAs, and other hardware accelerators.
 
 This repository's goal is working with CUDA platform. For working with this platform on Windows, first, Microsoft Visual Studio Code alongside Nvidia's CUDAtoolkit must be installed. Nvidia Nsight is an application development environment which brings GPU computing into Microsoft Visual Studio allowing developers to build and debug integrated GPU kernels and native CPU code as well as inspect the state of the CPU, GPU, and memory. But, on a Linux OS due to the built-in compilers, only nvcc compiler is enough to compile CUDA programs.
 
-A CUDA program (its extension is .cu) consists of two parts: (1) runs on CPU which is usually called "host", (2) runs on GPU, which is usually called "device". The following figure shows how a cuda program runs on a system consisted of a CPU and a GPU (called Heterogeneous System). When we write a program in C, C++, Python or other programming language, it executes only on the CPU. However, CUDA platform makes us to write one code that will be executed on both CPU and GPU.
+A CUDA program (its extension is **.cu**) consists of two parts: (1) runs on CPU which is usually called "**host**", (2) runs on GPU, which is usually called "**device**". The following figure shows how a cuda program runs on a system consisted of a CPU and a GPU (called Heterogeneous System). When we write a program in C, C++, Python or other programming language, it executes only on the CPU. However, CUDA platform makes us to write one code that will be executed on both CPU and GPU.
 
 ![CUDA program](Images/CUDA_program.jpg)
 
@@ -33,9 +39,9 @@ In a CUDA program, the following list happens:
 3. CPU launches kernel(s) on GPU to process the input data (copied in the previous step)
 4. CPU copies results back to its memory from GPU's memory (**cudaMemcpy**)
 
-The big idea in writing CUDA programs is that kernels look like serial programs as if it will run on thread. The GPU will run that program on many threads because each thread has an id.
+The big idea in writing CUDA programs is that kernels look like serial programs as if it will run on thread. **The GPU will run that program on many threads because each thread has an id**.
 
-Also, note that in GPU computing, throughput is what you will gain from. GPUs are efficient when your program is highly parallel. GPUs are masters of launching a large number of threads efficiently. The data movement part and the parallelism of the program that is going to be processed by GPU should be considered unless totally nothing will be achieved while more energy will be squandered.
+Also, note that in GPU computing, **throughput** is what you will gain from. GPUs are efficient when your program is highly parallel. GPUs are masters of launching a large number of threads efficiently. The data movement part and the parallelism of the program that is going to be processed by GPU should be considered unless totally nothing will be achieved while more energy will be squandered.
 
 ### A Simple Program
 A simple program aims at computing square of each element of an array.
@@ -99,7 +105,7 @@ int main() {
 If each multiplication by GPU takes 10 nanoseconds and there are some overheads imposed by data transfer and kernel launching.
 
 ```
-Execution Time = 10 ns + 2 * DT Overhead + L Overhead 
+Execution Time = 10 ns + 2 * (Data Transfer Overhead) + (Kernel Launch Overhead) 
 ```
 
 As it is evident, if the data transfer overhead is negligible compared to the parallelism, we can gain a lot from GPU computing.
@@ -110,26 +116,28 @@ We will learn more about the kernel, its configuration, especially about thread 
 kernel_name<<<dim3(Dx, Dy, Dz), dim3(Tx, Ty, Tz), shmem>>>(argment list);
 ```
 
-**shmem** shows the shared memory per block in bytes.
+**shmem** shows the shared memory per block in **bytes**.
 
 The following list briefly introduces you the built-in variables of CUDA for addressing threads and blocks:
 
-1. threadIdx: thread within block - threadIdx.x, threadIdx.y
-2. blockDim.x, .y, .z: size of a block (# of threads in a block) in a particular dimension
-3. blockIdx: block id within grid
-4. gridDim.x, .y, .z: size of grid (# of blocks in it) in a particular direction
+1. **threadIdx**: thread within block - **threadIdx.x**, **threadIdx.y**, **threadIdx.z**
+2. **blockDim.x, .y, .z**: size of a block (# of threads in a block) in a particular dimension
+3. **blockIdx.x, .y, .z**: block id within grid
+4. **gridDim.x, .y, .z**: size of grid (# of blocks in it) in a particular direction
 
-In the following example: our kernel is consisted of 8 blocks, each containing 64 threads. Totally, the kernel consists of 64 * 8 = 512
+In the following example: our kernel is consisted of **8 blocks** (2 * 2 * 2), each containing **64 threads** (4 * 4 * 4). Totally, the kernel consists of **64 * 8 = 512 threads**.
 
 ```c
 kernel_name<<<dim3(2, 2, 2), dim3(4, 4, 4)>>>(argment list);
 ```
+
 Note: for calculating the data transfer time overhead between CPU and GPU, [NVIDIA Nsight Systems tool](https://developer.nvidia.com/nsight-systems) can be used.
+
 
 ### Grayscale Filter
 In this example, a grayscale image processing filter is developed. It inputs a color image and changes it to a black and white image. First, how images are shown is reviewd.
 
-An image is represented by three values well-known for RGB, which stands for Red, Green, Blue. RGB = (0, 0, 0) represents white, and RGB = (255, 255, 255) represents black. Also, there is another element which shows the transparency, which is called alpha channel. In C language a pixel can be shown as follows:
+An image is represented by three values well-known for RGB, which stands for Red, Green, Blue. RGB = (0, 0, 0) represents white, and RGB = (255, 255, 255) represents black. Also, there is another element which shows the transparency, which is called **alpha channel**. In C language a pixel can be shown as follows:
 
 ```c
 struct uchar4 {
@@ -153,18 +161,21 @@ For converting a color image to a grayscale one, simple naive way would be use t
 I = 0.299 * R + 0.587 * G + 0.114 * B
 ```
 
-You can find the source code of this example [here](Code/02-grayscale_filter/grayscale_filter). This is the project given on the course. For working with this, you have to install opencv, also do a lot of configurations to your VS IDE to run it. I developed a simpler version of this filter and it can be found [here](Code/02-grayscale_filter/simpler_grayscale_filter).
+You can find the source code of this example [here](Code/02-grayscale_filter/grayscale_filter). This is the project given on the course. For working with this, you have to install opencv, also do configurations to your VS IDE to run it. I developed a simpler version of this filter and it can be found [here](Code/02-grayscale_filter/simpler_grayscale_filter).
 
-Note: for being able to run the project, the following is needed:
+Note: for being able to run the project, the following links can be helpful:
 1. How to install opencv and use it in Microsoft VS [click here](https://subwaymatch.medium.com/adding-opencv-4-2-0-to-visual-studio-2019-project-in-windows-using-pre-built-binaries-93a851ed6141)
 2. How to give arguments to our program in Microsoft VS [click here](https://social.msdn.microsoft.com/Forums/vstudio/en-US/33160a80-d2fa-4af2-a5d5-14b8696df702/argc-and-argv-in-visual-c?forum=vcgeneral)
 
 
 
+
 ## GPU Hardware and Parallel Communcation Patterns
-Parallel computing is about many threads solving a problem by working together. The key to working together is communication. In CUDA, communication takes place through memory.
+Parallel computing is about many threads solving a problem by working together. The key to working together is **communication**. In CUDA, communication takes place through memory.
 
 There are different kinds of parallel communication patterns and they are about how to map tasks (threads) and memory. Important communication patterns are listed as follows:
+
+
 1. **Map**: Tasks read from and write to specific data elements. In this pattern, there is an one-to-one correspondence between input and output. The following figure shows this pattern.
 
 ![Map Pattern](Images/map_communication_pattern.jpg)
@@ -179,7 +190,7 @@ Note: the problem of scatter pattern would be attempt of several threads on writ
 
 ![Scatter Pattern](Images/scatter_communication_pattern.jpg)
 
-4. **Stencil**: tasks read input from a fixed neighborhood in an array. As a result, there are a lot of data reuse. **Each element is accesses to the number of elements of the stencil**. 2D ann 3D Von neumann and 2D Moore stencil patterns are examples.
+4. **Stencil**: tasks read input from a fixed neighborhood in an array. As a result, there are a lot of data reuse. **Each element in a stencil is accessed to the same number of elements of that stencil**. 2D ann 3D Von neumann and 2D Moore stencil patterns are examples for stencil.
 
 2D Von Neumann Stencil Pattern
 
@@ -193,7 +204,7 @@ Note: the problem of scatter pattern would be attempt of several threads on writ
 
 ![2D Moore Stencil Pattern](Images/2D_Moore_stencil.gif)
 
-5. **Transpose**: task reorder data elements in memory. A good example for this pattern is transposing a 2D array or matrix. There is a one-to-one correspondence between input and output.
+5. **Transpose**: task reorder data elements in memory. A good example for this pattern is transposing a 2D array or matrix. There is a one-to-one correspondence between input and output. For easily remembering this pattern, recall matrix transpose that we change the columns and rows. The operations required to accomplish that task is a transpose communication pattern.
 
 In the following snippet, you can see differnet communication patterns:
 
@@ -207,10 +218,11 @@ const float pi = 3.1415;
 out[i] = pi * in[i]; // Map pattern because every single output element is in a correpondence to a unique input element
 
 
-out[i + j * 128] = in[j + i * 128]; // Transpose pattern because this task reorders data elements in memory
+out[i + j * 128] = in[j + i * 128]; // Transpose pattern because this task reorders data elements in memory, row is changing to a column
 
 if (i % 2 == 0) {
-    out[i - 1] += pi * in[i]; out[i + 1] += pi * in[i];
+    out[i - 1] += pi * in[i]; 
+    out[i + 1] += pi * in[i];
     // Scatter pattern because scatters in[i] on out[i - 1] and out[i + 1]
 
     out[i] = (in[i] + in[i - 1] + in[i + 1]) * pi / 3.0f;
@@ -222,9 +234,9 @@ if (i % 2 == 0) {
  ![communication pattern](Images/communication_patterns.jpg)
 
  ### GPU Hardware
- On the summary of CUDA programming model (what a programmer sees of GPU), The main job of a CUDA programmer is to divide a task into smaller computational kernels. In CUDA, a kernel, as seen before, is a C/C++ function and it will be performed by many threads. A thread is a path of execution through the source code, and different threads take differen paths on a source code based on the conditions of conditional statementes like if, switch, and loops. In CUDA, threads are grouped into thread blocks. In a thread block, threads cooperate to solve a sub-problem. The higher level of thread block is thread gird or kernel.
+ On the summary of CUDA programming model (what a programmer sees of GPU), The main job of a CUDA programmer is to divide a task into smaller computational kernels. In CUDA, a kernel, as seen before, is a C/C++ function and it will be performed by many threads. A thread is a path of execution through the source code, and different threads take different paths on a source code based on the conditions of conditional statementes like if, switch, and loops. In CUDA, threads are grouped into thread blocks. In a thread block, threads cooperate to solve a sub-problem. The higher level of thread block is thread gird or kernel.
 
- In a high level, a GPU is made of several Streaming Multiprocessors (SMs). Different GPU have different number of SMs. Each SM has many simple processors (Called Streaming Processors (SPs)) that can run a number of parallel threads. GPU is responsible for allocating thread blocks (TBs) to streaming multiprocessors (SMs). All of the SMs run in parallel and independently. The following figure would give a clear idea of the all above.
+ In a high level, a GPU is made of several **Streaming Multiprocessors (SMs)**. Different GPU have different number of SMs. Each SM has many simple processors (Called **Streaming Processors (SPs)**) that can run a number of parallel threads. GPU (**GigaThread unit**) is responsible for allocating thread blocks (TBs) to streaming multiprocessors (SMs). All of the SMs run in parallel and independently. The following figure would give a clear idea of the all above.
 
  ![overall view of GPU hardware](Images/Overall_view_of_GPU_hardware.jpg)
 
@@ -269,10 +281,16 @@ CUDA guarantees that:
 1. All threads in a block run on the same SM at the same time
 2. All blocks in a kernel finish before any blocks from the next kernel runs
 
+
+
+
 ### Memory Model
 Every thread has access to its local memory which is used for storing its local private variables. Threads of a thread block share a memory called ""shared memory". Every thread in entire system reads and writes at any time to global memory. The GPU's memory, which data is copied from CPU's memory to it, is the global memory.
 
+
 Following statements from a quiz all are true, which can give a better understanding of the memory model of GPU:
+
+
 1. All threads from a block can access the same variable in that thread block's shared memory.
 2. Threads from two different blocks can access the same variable in global memory.
 3. Threads from different thread blocks have their own copy of local varaibles in local memory.
@@ -282,9 +300,10 @@ The following figure can give a good idea of memory model in CUDA programming.
 
 ![CUDA memory model](Images/CUDA_memory_model.png)
 
-As it is evident from this memory model, threads can access each other's results throguh shared and global memory, and in this way they can work together. But, what happens if a thread reads a result before another one writes? So, there is needed a way of synchronization!
+As it is evident from this memory model, threads can access each other's results throguh shared and global memory, and in this way they can work (or talk) together. But, what happens if a thread reads a result before another one writes? So, there is needed a way of **synchronization**!
 
-The simplest form of synchronization is using "barriers". A barrier is a point in the program where threads stop and wait, and when all threads have reached the barrier, they can proceed. The following snippet shows the need for barriers. The source code can be found [here](Code/04-need_for_barriers/code_with_barriers/need_for_barriers/kernel.cu).
+The simplest form of synchronization is using "**barriers**". A barrier is a point in the program where threads stop and wait, and when all threads have reached the barrier, they can proceed. The following snippet shows the need for barriers. The source code can be found [here](Code/04-need_for_barriers/code_with_barriers/need_for_barriers/kernel.cu).
+
 
 ```c
   int idx = threadIdx.x;
@@ -318,13 +337,19 @@ But, if no barriers were used the result would be random like what is shown in t
 
 **Note** that syncthreads() is used just for synchronization of threads in a thread block.
 
-It is recommended to do some eperiments in theses phase as this tutorial continues because the best way of learning these things is by doing them. Also, try to change the provided source codes. Any commnets, or suggestions are well appreciated.
+It is recommended to do some experiments in theses phase as this tutorial continues because the best way of learning these things is by doing them. Also, try to change the provided source codes. Any commnets, or suggestions are well appreciated.
+
+
 
 #### Writing Efficient Programs
-The high-level strategy for writing efficient programs with CUDA is to maximize arithmetic intensity. It means to maximize compute operations per thread, and minimize time spent on memory accesses per thread.
+The high-level strategy for writing efficient programs with CUDA is **to maximize arithmetic intensity**. *It means to maximize compute operations per thread, and minimize time spent on memory accesses per thread*.
+
+
 
 ##### Moving frequently-accessed data to fast memory
-One of the ways to minimize time spent on memory is to move frequently-accessed data to fast memory. It is considered that local memory (Registers) is faster than shared memory, and they both together are much faster than global memory. The following snippets shows how variables are stored locally or globally.
+One of the ways to minimize time spent on memory is to move frequently-accessed data to fast memory. It is considered that **local memory (Registers or L1 cache)** is faster than shared memory, and they both together are much faster than global memory. The following snippets shows how variables are stored locally or globally.
+
+
 
 ```c
 __global__ void use_local_memory_GPU(float in) {
@@ -362,7 +387,11 @@ int main(int argc, char **argv) {
 }
 ```
 
+
+
 In the following example, it is shown how variables are stored on GPU's shared memory. This memory is shared by all threads of a thread block (TB). Earlier in the barrier example, it is shown how a variable is stored in shared memory by using __shared__ tag. 
+
+
 
 ```c
 // it must be launched with 128 threads
@@ -398,9 +427,11 @@ __global__ void use_shared_memory_GPU(float *arr) {
 }
 ```
 
-Note that if the data processed on shared is not copied to global memory when the thread block finishes the data will be gone because the lifetime of shared data of a thread block is till the end of that thread block's lifetime.
+Note that if the data processed on shared is not copied to global memory when the thread block finishes the data will be gone because **the lifetime of shared data of a thread block is till the end of that thread block's lifetime**.
 
 Scalar variables like what define are stored in register file of GPU, and read/ write access to them is super fast. The lifetime of that variable is equal to the thread's lifetime.
+
+
 
 ```c
 int var;
@@ -418,6 +449,8 @@ GPU operates most efficient when threads read/ write contiguous (next or togethe
 ![Coalesced Accessing to Global Memory](Images/coalesced_accessing_to_global_memory.jpg)
 
 Pay attention at the access pattern of some statements in the following snippet.
+
+
 
 ```c
 __global__ void aKernel(float *g){
@@ -438,17 +471,19 @@ __global__ void aKernel(float *g){
 }
 ```
 
-#### Problem: when several threads write a single memory location
+#### **Problem**: when several threads write a single memory location
+
 In this way, random result will show up because many thread simultaneously will read stale data. This [example](Code/05-many_threads_accessing_single_mem_location_problem/many_threads_accessing_problem/kernel.cu) shows this problem. The following figures show the random results of incrementing 10 elements of an array with one million threads. 
 
 ![](Images/many_threads_accessing_one_mem_location_problem_1.png)
 
 ![](Images/many_threads_accessing_one_mem_location_problem_2.png)
 
-One solution to this problem is using __syncthreads() with changes to the source code. The other solution is atomicAdd(). This instruction is from atomic instructions that GPU implement to meet this problem. Some other atomic instructions are:
-1. atomicMin()
-2. atomicXOR()
-3. atomicCAS(): atomic Compare And Swap
+One solution to this problem is using barriers, **__syncthreads()** with changes to the source code. The other solution is **atomicAdd()**. This instruction is from atomic instructions that GPU implement to meet this problem. Some other atomic instructions are:
+1. atomicAdd()
+2. atomicMin()
+3. atomicXOR()
+4. atomicCAS(): **Atomic Compare And Swap**. It can help on developing customized atomic operations that are provided by CUDA.
 
 If you look at [this one](Code/05-many_threads_accessing_single_mem_location_problem/solved_with_atomicAdd\solved_with_atomicAdd/kernel.cu), you will figure out how atomicAdd solves the problem, and the following figures show the correct execution of this one.
 
@@ -456,11 +491,12 @@ If you look at [this one](Code/05-many_threads_accessing_single_mem_location_pro
 
 ![solved with atomicAdd](Images/solved_with_atomic_add2.png)
 
+
 The limitations of atomic operations:
-- Only certain operations and data types (mostly int) are supported (But it is possible to implement our desired atomic operation with the help of atomicCAS())
+- Only certain operations and data types (mostly int) are supported (But it is possible to implement our desired atomic operation with the help of **atomicCAS()**)
 - No ordering constraints
-  - Floating-point arithmetic non-associative
-- Serializing accesses to memory ends in performance degradation
+  - Floating-point arithmetic non-associative (**a + (b + c) != (a + b) + c**), it is a result of the fact computers are completely precise when it comes to infinitesimal values like 10<sup>-20<sup>
+- Serializing accesses to memory ends in harsh performance degradation
 
 ##### Programming Exercise
 Modify the example code to:
@@ -479,6 +515,7 @@ Threads diverge on conditional structures of the source code on execution.
 
 In this section, we reviewed communication patterns, GPU hardware and programming model. Then, on writing efficient CUDA programs we reviewed accessing memory faster by using faster memories and coalesing accesses to the global memory. Also, we learned that avoiding thread divergence is another way of writing efficient CUDA programs.
 
+
 ### Bluring Images Programming Assignment
 You can see the project [here](Code/06-image_bluring_filter/image_bluring_filter). It is modified, and its errors are fixed, and is successfully tested on Microsoft VS 2019. For being able to run this, you have to have the same setup (opencv must be added to configurations).
 
@@ -489,6 +526,13 @@ What are needed to be done are listed below:
 4. Set grid and block size
 
 Because these programming assignment contain code for evaluating the result by serial CPU code, the entire assignment looks bulky. A simpler version which implements a image blur filter can be found [here](Code/6-image_bluring_filter/simpler_image_bluring_filter).
+
+
+
+
+
+
+
 
 ## Fundamentals of GPU Algorithms
 Discussing about GPU parallel algorithms requires knowing about two costs:
