@@ -661,3 +661,93 @@ Another example of Belloch algorithm, the operator is max scan.
 - Step complexity: **O(logn) (reduce)** + **O(logn) (downsweep)**
 
 ## Histogram Algortihm
+
+A good example for understanding the histogram algorithm is how we process the population of a city and put them into different categories or bins based on their age like infant (age < 1 year), toddler (1 <= age < 2), child (2 <= age < 12), teen (12 <= age <= 18), youth (18 < age < 32), middle-aged (32 <= age <= 50), elderly (age > 50). We can count the number of people in each category and make a figure like as follows.
+
+![histogram](Images/histogram.png)
+
+If we want to find the cumulative distribution function (CDF) from the histogram we made, we need to do a "**exclusive scan**" operation.
+
+**Serial implementation** of histogram algorithm:
+
+```c
+BIN_COUNT = 7; // 7 is just an example
+
+
+float data_array[1000]; // 1000 is just an example - It contains the raw or measurement data
+
+int compute_bin(float in) {
+    // This is just an example on how this function can be
+    if(in >= 0 && in < 1)
+        return 0;
+    else if (in >= 1 && in < 2)
+        return 1;
+    else if (in >= 2 && in < 12)
+        return 2;
+    else if (in >= 12 && in <= 18)
+        return 3;
+    else if (in > 18 && in < 32)
+        return 4;
+    else if (in >= 32 && in <= 50)
+        return 5;
+    else
+        return 6;
+}
+
+// Initializing bins to zero
+for (i = 0; i < BIN_COUNT; i++) {
+    result[i] = 0;
+}
+
+// going over each element in the data array and increasing the right counter
+for (i = 0; i < DATA_ARRAY_LENGTH; i++){
+    result[compute_bin(data_array[i])]++;
+}
+```
+
+### Parallel implementation of histogram algorithm
+If we want to launch threads to the number of raw data and increase the bin counter, **race condition** happens and each run gives out different values. It is because each thread reads the value from the global memory, brings it to its local memory (register), increments, then writes back. Different threads can read a number, which will end in losing some information.
+
+```c
+__global__ void naive_histo(int *d_bins, const int *d_in, const int BIN_COUNT) {
+    int myId = threadIdx.x + blockDim * blockIdx.x;
+    int myItem = d_in[myId];
+    int myBin = myItem % BIN_COUNT;
+    d_bins[myBin]++;
+}
+```
+
+#### Implementing Histogram using Atomic Operations
+While using atomics, GPU locks down the memory location that was accessed by an atomic instruction, so it prevents race condition, while serilization and performance degradation is the result of using these instructions.
+
+```c
+__global__ void simple_histo(int *d_bins, const int *d_in, const int BIN_COUNT) {
+    int myId = threadIdx.x + blockDim * blockIdx.x;
+    int myItem = d_in[myId];
+    int myBin = myItem % BIN_COUNT;
+    atomicAdd(&(d_bins[myBin]), 1);
+}
+```
+
+#### Implementing Histogram using Local Memory and Reducing
+In this implementation, every thread has its **own local histogram**. The raw data is **split** among threads. Finally, **reduce** algorithm is applied on the bins of the threads.
+
+Note that implementing Historgram using sort, then reduce by key algorithm is another option.
+
+### Project - Tone Mapping
+We use tone mapping in vision to process and produce images that all parts of them are visible to human eyes. Some parts of photos are sometimes so bright that we cannot see anthing but white. We want to change those pixels values appropriately to be easily detectable by human eye. The reason for happening this is that the physical world has an enormous range of brightness values, but when it is going to move into digital realm, as the range is smaller because of the limited number of bits for data representation, some details are lost. Tone mapping is the algorithm that maps that natural large range to the digital restricted one.
+
+
+High Dynamic Range (HDR) mode in cameras after capturing the photo, accomplishes tone mapping before showing the taken photo to us.
+
+
+**[Histogram equalization](https://en.wikipedia.org/wiki/Histogram_equalization)** algorithm is a way to do tone mapping.
+
+The source code can be found [here]().
+
+
+### What is Compact?
+
+
+
+## Optimizing GPU Programs
