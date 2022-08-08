@@ -746,7 +746,36 @@ High Dynamic Range (HDR) mode in cameras after capturing the photo, accomplishes
 The source code can be found [here]().
 
 
-### What is Compact?
+### Compact (dense)/ sparse computations
+Compact computations launches less threads for doing a task in comparison to a sparse one. Consider the following example:
+
+```c
+// A sparse operations that launches 52 threads
+if (card.is_diamond() == 1) {
+    compute_card(); // 52 threads (some heavy computation, some other idle - but by being idle, indeed we pay the price)
+}
+
+// the compact version of it
+
+cc == compact (cards, is_diamond()) // 52 threads are launched (light computation)
+map(cc, compute_card()) // 13 threads (to the number of diamonds) are launched (heavy computation)
+```
+
+For the compact one, you would think that more threads are launched and how it can be more efficient? Just pay attention that those 52 initial threads' work is very light and for the high computation, only the required ones are computed.
+
+**Note** that compact is most useful when we compact away **a large number of elements** and the computation on each surviving element is **expensive**.
+
+#### Steps to compact
+1. Predicate
+2. Scan-in array
+3. Exclusive-sum-scan (scan-in) - output is scatter addresses for compacted array
+4. Scatter input into output using addresses
+
+Consider the following example:
+- A: is divisible by 17? [keeps few items]
+- B: is not divisible by 31? [keeps many items]
+
+For predicate step, it takes the same amount of time for both of the programs. For scan as it goes through all array, so it is same for both. Byut, scatter takes less time for A as it has less elements to scatter.
 
 
 
