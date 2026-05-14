@@ -37,7 +37,9 @@ A CUDA program (with the extension **`.cu`**) consists of two parts:
 
 The following figure illustrates how a CUDA program executes on a system composed of both a CPU and a GPU, commonly known as a **heterogeneous system**. When programs are written in languages such as C, C++, or Python, they are typically executed only on the CPU. In contrast, the CUDA platform enables developers to write programs in which different parts of the code can execute on both the CPU and the GPU.
 
-![CUDA program](Images/CUDA_program.jpg)
+<p align="center">
+  <img src="Images/CUDA_program.jpg" alt="CUDA program" width="50%"/>
+</p>
 
 A CUDA program treats the GPU as a co-processor attached to the CPU. In this execution model, the CPU, also called the **host**, is responsible for managing program execution and coordinating data transfers between the host memory and the GPU memory (device memory). Data movement between the CPU and GPU memories is typically performed using CUDA memory copy functions such as **`cudaMemcpy()`** (1, 2).  
 
