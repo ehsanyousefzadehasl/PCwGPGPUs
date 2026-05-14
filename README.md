@@ -1,17 +1,28 @@
 # Parallel Computing with GPGPUs
-In this repository, I try to summarize what I review and learn from parallel comptuing with GPGPUs. Special thanks to [Prof. John Owens](https://www.ece.ucdavis.edu/~jowens/) and [David P. Luebke](https://luebke.us/) who paved the way of learning parallel computing with GPGPUs with his free course on the Udacity. I develop this course as he taught that time. However, I add more information and examples from other resources.
+In this repository, I continuously collect and update my notes, explanations, and examples on parallel computing with GPGPUs. The material was originally inspired by the excellent Udacity course by [Prof. John Owens](https://www.ece.ucdavis.edu/~jowens/) and [David P. Luebke](https://luebke.us/), which played an important role in my early learning journey in parallel computing. Over time, I expanded the content with additional explanations, examples, and material from other resources.
 
 ## Introduction
-In this very first section, the story of how computer architects focused their attention on parallel computing is narrated. Then, the CUDA platform is described. Finally, a simple CUDA program is shown and described.
+This section briefly introduces the motivation behind the shift toward parallel computing, presents the CUDA platform, and walks through a simple CUDA program.
 
 ### The History
-In the words of Thomas Jefferson
+### The History
+
+In the words of Thomas Jefferson:
+
 > I like the dreams of the future better than the history of the past.
 
-The story begins 1948 (I can barely remember something :D, but I believe you would not be able to remember anything) when Von Neumann architecture became the mainstream of computer architecture. Computer architects were desigining and building computing systems that were fetching data from memory units, processing it in CPUs, then writing it back to memory units. They encountered several challenges, and tried to find solutions for them. One of the challenges was the processor-memory performance gap referred as [Memory Wall](https://link.springer.com/referenceworkentry/10.1007%2F978-0-387-09766-4_234). Computer architects for addressing this issue focused on architectural techniques like caching, pre-fetching, multi-threding, Processing In-Memory (PIM) to prevent CPUs from stalling (waiting for memories to give them data). The other one was dennard scaling breakdown. Computer architects were not able to improve the performance just by increasing the working frequency of chips. So, they steered the computer architecture trend toward **parallelism**. This time instead of complex large processor cores, they were desigining for more simple processors working together. This architecture increased performance, and power efficiency by providing more operations per watt. Indeed, they focused on throughput (on large cores their focus was on latency). The only pitfall of parallel systems was making programmers' lifes harder. It is usually claimed challenging for a programmer, who is used to develop serial programs, to switch to a new thinking paradigm and develop parallel programs!
-This amount of history to know why we are here is enough!
+The story begins around 1948, when the Von Neumann architecture became the dominant computer architecture model. Computing systems were designed around processors fetching data from memory, processing it, and writing the results back to memory. As systems evolved, architects encountered several major challenges.
 
-In the words of Henry Glassie
+One important challenge was the processor-memory performance gap, commonly known as the **Memory Wall**. To reduce processor stalls caused by slow memory accesses, techniques such as caching, prefetching, multithreading, and Processing-In-Memory (PIM) were explored.
+
+Another major challenge was the breakdown of Dennard scaling. Increasing clock frequencies was no longer enough to continue delivering significant performance improvements efficiently. As a result, computer architects increasingly shifted toward **parallelism**: instead of relying on a few increasingly complex cores, systems began using many simpler processing units working together. This approach improved throughput and power efficiency by enabling more operations per watt.
+
+The tradeoff, however, was increased programming complexity. Developers accustomed to sequential programming now had to think in terms of parallel execution and coordination.
+
+That is enough history for us to understand why parallel computing became important.
+
+In the words of Henry Glassie:
+
 > History is not the past but a map of the past, drawn from a particular point of view, to be useful to the modern traveller.
 
 
