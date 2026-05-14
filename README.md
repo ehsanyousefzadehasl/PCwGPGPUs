@@ -39,13 +39,19 @@ The following figure illustrates how a CUDA program executes on a system compose
 
 ![CUDA program](Images/CUDA_program.jpg)
 
-A CUDA program, which views GPU as a co-processor of CPU, CPU or "host" is in charge of doing the data movements (transfer) between CPU and GPU memories with **Memcpy** CUDA instruction (1, 2). It also allocates a memory part on GPU's memory with **Memalloc** CUDA instruction (3). Then, CPU launches kernels on GPU to be executed by GPU (4) with three arrow syntax with parameters showing the kernel configuration, which we will be cleared as follows.
+A CUDA program treats the GPU as a co-processor attached to the CPU. In this execution model, the CPU, also called the **host**, is responsible for managing program execution and coordinating data transfers between the host memory and the GPU memory (device memory). Data movement between the CPU and GPU memories is typically performed using CUDA memory copy functions such as **`cudaMemcpy()`** (1, 2).  
 
-Note that:
-1. GPU can only respond to CPU requests for sending or receiving data from/ to CPU. Also, it computes a kernel launched by CPU.
-2. GPU cannot initiate any data sending/ receiving request.
-3. GPU cannot compute a kernel launched by itself or it cannot launch a kernel. In other words, from a kernel another kernel cannot be launched.
-4. CPU launches kernels on GPU in the order you write in your code.
+The host also allocates memory on the GPU using CUDA memory management functions such as **`cudaMalloc()`** (3). After the required data is transferred and memory is allocated, the CPU launches GPU functions, called **kernels**, for parallel execution on the GPU (4). Kernel launches use the CUDA execution configuration syntax `<<< ... >>>`, where the parameters specify properties such as the number of thread blocks and threads per block.
+
+> **Notes**
+>
+> 1. The GPU executes kernels that are launched by the CPU and responds to data transfer requests initiated by the host.
+>
+> 2. In the traditional CUDA execution model, the GPU does not independently initiate data transfers between the host and device memories.
+>
+> 3. Modern CUDA architectures support **Dynamic Parallelism**, which allows a kernel running on the GPU to launch additional kernels. Therefore, kernels are not strictly limited to being launched only by the CPU.
+>
+> 4. Kernel launches issued by the CPU are executed in program order within the same CUDA stream unless asynchronous execution or multiple streams are used.
 
 ### A Typical GPU Program
 In a CUDA program, the following list happens:
