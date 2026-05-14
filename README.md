@@ -26,11 +26,16 @@ In the words of Henry Glassie:
 
 
 ## Compute Unified Device Architecture (CUDA)
-It is a parallel computing platform and API created by NVIDIA allowing developers to use a CUDA-enabled GPU for general purpose processing. This approach is termed as GPGPU (General Purpose GPU). The CUDA platform is a software layer providing a direct access to the GPU's virtual instruction set (**PTX**) and parallel computational elements, for the execution of kernels which also are called compute kernels. This platform is designed to work with programming languages like C, C++, Fortran. As a result, programming with CUDA is much easier than prior APIs, like **Direct3D** and **OpenGL** (demaning advanced skills in graphics programming), to it. **OpenCL** (Open Computing Language) is a framework providing developers with more capability of writing programs that execute across heterogeneous platforms consisted of CPUs, GPUs, DSPs, FPGAs, and other hardware accelerators.
+CUDA is a parallel computing platform and API developed by NVIDIA that allows developers to use CUDA-enabled GPUs for general-purpose computing, an approach commonly referred to as GPGPU (General-Purpose Computing on GPUs). The CUDA platform provides a software layer that offers direct access to the GPU’s virtual instruction set architecture (**PTX**) and parallel computational elements for executing kernels, also known as compute kernels. CUDA is designed to support programming languages such as C, C++, Fortran, and Python. As a result, programming with CUDA is significantly easier than using earlier APIs such as **Direct3D** and **OpenGL**, which require advanced graphics programming expertise.
 
-This repository's goal is working with CUDA platform. For working with this platform on Windows, first, Microsoft Visual Studio Code alongside Nvidia's CUDAtoolkit must be installed. Nvidia Nsight is an application development environment which brings GPU computing into Microsoft Visual Studio allowing developers to build and debug integrated GPU kernels and native CPU code as well as inspect the state of the CPU, GPU, and memory. But, on a Linux OS due to the built-in compilers, only nvcc compiler is enough to compile CUDA programs.
+**OpenCL** (Open Computing Language), in contrast, is an open framework that enables developers to write programs capable of executing across heterogeneous platforms, including CPUs, GPUs, DSPs, FPGAs, and other hardware accelerators.
 
-A CUDA program (its extension is **.cu**) consists of two parts: (1) runs on CPU which is usually called "**host**", (2) runs on GPU, which is usually called "**device**". The following figure shows how a cuda program runs on a system consisted of a CPU and a GPU (called Heterogeneous System). When we write a program in C, C++, Python or other programming language, it executes only on the CPU. However, CUDA platform makes us to write one code that will be executed on both CPU and GPU.
+
+A CUDA program (with the extension **`.cu`**) consists of two parts:  
+1. Code that runs on the CPU, commonly referred to as the **host**.  
+2. Code that runs on the GPU, commonly referred to as the **device**.  
+
+The following figure illustrates how a CUDA program executes on a system composed of both a CPU and a GPU, commonly known as a **heterogeneous system**. When programs are written in languages such as C, C++, or Python, they are typically executed only on the CPU. In contrast, the CUDA platform enables developers to write programs in which different parts of the code can execute on both the CPU and the GPU.
 
 ![CUDA program](Images/CUDA_program.jpg)
 
