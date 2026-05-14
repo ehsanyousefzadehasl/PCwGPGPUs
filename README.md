@@ -5,7 +5,6 @@ In this repository, I continuously collect and update my notes, explanations, an
 This section briefly introduces the motivation behind the shift toward parallel computing, presents the CUDA platform, and walks through a simple CUDA program.
 
 ### The History
-### The History
 
 In the words of Thomas Jefferson:
 
